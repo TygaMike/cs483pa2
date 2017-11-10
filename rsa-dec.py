@@ -1,4 +1,5 @@
 import argparse
+import random
 
 def parse_file(arg_file):
     with open(arg_file) as f:
@@ -10,12 +11,18 @@ class RSA(object):
 
     def __init__(self, N, e_or_d, output_file):
         self.N = N
+        self.n = n
         self.e_or_d = e_or_d
         self.output_file = output_file
 
     def decrypt(self, number_to_decrypt):
         decrypted_number = pow(number_to_decrypt, self.e_or_d, self.N)
         self.write_to_file(decrypted_number)
+    
+    def unpad(self,padded):
+        r = random.getrandbits(n/2)
+        ln = len(str(r))
+        return padded[ln+2:]
 
     def write_to_file(self, result):
         with open(self.output_file, 'w') as f:
@@ -43,8 +50,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     key_file_contents = parse_file(args.key_file)
     number = parse_file(args.input)[0]
+    n = int(key_file_contents[0])
     N = key_file_contents[1]
     e_or_d = key_file_contents[2]
 
     rsa = RSA(int(N), int(e_or_d), args.output)
-    rsa.decrypt(int(number))
+    pd = rsa.unpad(number)
+    rsa.decrypt(int(pd))
